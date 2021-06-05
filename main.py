@@ -1,4 +1,4 @@
-import json, urllib.parse, os, requests
+import json, urllib.parse, os, requests, sys
 
 def dl(fmt):
     undef = 'undefine'
@@ -18,18 +18,18 @@ def dl(fmt):
         'audio/mp4': 'm4a'
     }
     filename += '.%s' % typemap.get(fmt['mimeType'][:fmt['mimeType'].index(';')])
-    print(filename)
+    print(filename, end='...')
     
     with open(os.path.join(d, os.path.basename(d) + '_' + filename), 'wb') as out:
         for chunk in res.iter_content(100000):
             out.write(chunk)
-    print()
+    print('done')
 
-print('dir:')
-d = input()
-with open(os.path.join(d, 'get_video_info'), encoding='utf-8') as f:
-    info = f.read()
-info = urllib.parse.unquote(info)
+d = sys.argv[1]
+with open(os.path.join(d, 'player.txt'), encoding='utf-8') as f:
+    playerjson = json.load(f)
+
+info = urllib.parse.unquote(playerjson['adPlacements'][2]['adPlacementRenderer']['renderer']['linearAdSequenceRenderer']['linearAds'][0]['instreamVideoAdRenderer']['playerVars'])
 info = info[info.index('{'):info.rindex('}')+1].replace('\\u0026', '&')
 j = json.loads(info)
 for fmt in j['streamingData']['formats']:
